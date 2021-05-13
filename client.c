@@ -6,35 +6,30 @@
 //           EOF is reached. Finalizes by closing both the socket and the input
 //           file.
 
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <netdb.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <errno.h>
 #include <arpa/inet.h>
 
 int main(int argc, char *argv[]){
     // Verify the correct number of arguments
     if (argc != 5){
-        printf("Usage: ./client <port> <IP> src.txt dst.txt\n");
-        return 0;
+        printf("Usage: ./client [IP] [port] [SRC_FILE] [DST_FILE]\n");
+        return -1;
     }
 
     int sockfd = 0, n = 0;
     int port;
     char buff[10];
     struct sockaddr_in serv_addr;
-    sscanf(argv[1], "%d", &port);
+    sscanf(argv[2], "%d", &port);
 
     // Open read-only input file
     FILE *input_file = fopen(argv[3], "r");
     if (input_file == NULL){
         printf("Error: Could not open source file!\n");
-        return 0;
+        return -1;
     }
 
     // Setup
@@ -44,22 +39,22 @@ int main(int argc, char *argv[]){
     // Create socket
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
         printf("Error: Could not create socket!\n");
-        return 0;
+        return -1;
     }
 
     // Set address
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(port);
 
-    if (inet_pton(AF_INET, argv[2], &serv_addr.sin_addr) <= 0){
+    if (inet_pton(AF_INET, argv[1], &serv_addr.sin_addr) <= 0){
         printf("Error: inet_pton error has occurred!\n");
-        return 0;
+        return -1;
     }
 
     // Connect
     if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0){
         printf("Error: Connection failed!\n");
-        return 0;
+        return -1;
     }
 
     // Send dst.txt name
@@ -67,8 +62,8 @@ int main(int argc, char *argv[]){
 
     // Take input from src.txt, send to server
     while (feof(input_file) == 0){
+        sleep(0.1);
         n = fread(buff, 1 ,sizeof(buff), input_file);
-        printf("%s\n", buff);
         write(sockfd, buff, n);
     }
 

@@ -1,3 +1,6 @@
 how are you
 my name is
 this is a test file
+now it's an even longer file
+with special ch#@a# @racters
+what if \0 is detected?

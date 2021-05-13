@@ -11,13 +11,13 @@
 
 int main(int argc, char *argv[]){
     if (argc != 2){
-        printf("Usage: ./server <port> \n");
-        return 0;
+        printf("Usage: ./server [port] \n");
+        return -1;
     }
 
     int listenfd = 0, connfd = 0, n = 0;
-    char buff[5];
-    char name[1025];
+    char buff[10];
+    char name[1024];
     struct sockaddr_in serv_addr;
     int i, j;
     sscanf(argv[1], "%d", &i);
@@ -47,7 +47,6 @@ int main(int argc, char *argv[]){
         while (j > 0){
             n = read(connfd, buff, sizeof(buff));
             j = n;
-            printf("%d\n", j);
             fwrite(buff, n, 1, output_file);
         }
 
